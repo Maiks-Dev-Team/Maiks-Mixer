@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MaiksMixer.Core\MaiksMixer.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="MaiksMixerCpp">
+      <HintPath>..\MaiksMixerCpp\build\bin\Release\MaiksMixerCpp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

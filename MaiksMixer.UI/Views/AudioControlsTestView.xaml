@@ -1,0 +1,249 @@
+<UserControl x:Class="MaiksMixer.UI.Views.AudioControlsTestView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Views"
+             xmlns:controls="clr-namespace:MaiksMixer.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="#1E1E1E">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" 
+                   Text="Audio Controls Test" 
+                   FontSize="24" 
+                   FontWeight="Bold" 
+                   Foreground="White" 
+                   Margin="0,0,0,20"/>
+        
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Audio Level Meters Section -->
+            <Border Grid.Column="0" 
+                    Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="1" 
+                    CornerRadius="5" 
+                    Margin="0,0,10,0"
+                    Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" 
+                               Text="Audio Level Meters" 
+                               FontSize="18" 
+                               Foreground="White" 
+                               Margin="0,0,0,20"/>
+                    
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <!-- Vertical Meters -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,40,0">
+                            <controls:AudioLevelMeter x:Name="VerticalMeter1" 
+                                                     Width="30" 
+                                                     Height="200" 
+                                                     Margin="0,0,10,0" 
+                                                     PeakLevel="-20" 
+                                                     RmsLevel="-30"
+                                                     TickInterval="6"
+                                                     ShowTickLabels="True"/>
+                            
+                            <controls:AudioLevelMeter x:Name="VerticalMeter2" 
+                                                     Width="30" 
+                                                     Height="200" 
+                                                     Margin="0,0,10,0" 
+                                                     PeakLevel="-10" 
+                                                     RmsLevel="-15"
+                                                     TickInterval="12"/>
+                            
+                            <controls:AudioLevelMeter x:Name="VerticalMeter3" 
+                                                     Width="30" 
+                                                     Height="200" 
+                                                     PeakLevel="-3" 
+                                                     RmsLevel="-6"/>
+                        </StackPanel>
+                        
+                        <!-- Horizontal Meters -->
+                        <StackPanel Orientation="Vertical">
+                            <controls:AudioLevelMeter x:Name="HorizontalMeter1" 
+                                                     Width="200" 
+                                                     Height="30" 
+                                                     Margin="0,0,0,10" 
+                                                     PeakLevel="-20" 
+                                                     RmsLevel="-30"
+                                                     Orientation="Horizontal"
+                                                     TickInterval="6"
+                                                     ShowTickLabels="True"/>
+                            
+                            <controls:AudioLevelMeter x:Name="HorizontalMeter2" 
+                                                     Width="200" 
+                                                     Height="30" 
+                                                     Margin="0,0,0,10" 
+                                                     PeakLevel="-10" 
+                                                     RmsLevel="-15"
+                                                     Orientation="Horizontal"
+                                                     TickInterval="12"/>
+                            
+                            <controls:AudioLevelMeter x:Name="HorizontalMeter3" 
+                                                     Width="200" 
+                                                     Height="30" 
+                                                     PeakLevel="-3" 
+                                                     RmsLevel="-6"
+                                                     Orientation="Horizontal"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="2" Margin="0,20,0,0">
+                        <TextBlock Text="Test Controls" 
+                                   FontSize="14" 
+                                   Foreground="White" 
+                                   Margin="0,0,0,10"/>
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" 
+                                       Text="Peak Level:" 
+                                       Foreground="White" 
+                                       VerticalAlignment="Center" 
+                                       Margin="0,0,10,5"/>
+                            
+                            <Slider Grid.Row="0" Grid.Column="1" 
+                                    x:Name="PeakLevelSlider" 
+                                    Minimum="-60" 
+                                    Maximum="6" 
+                                    Value="-20" 
+                                    TickFrequency="6" 
+                                    IsSnapToTickEnabled="False"
+                                    ValueChanged="PeakLevelSlider_ValueChanged"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" 
+                                       Text="RMS Level:" 
+                                       Foreground="White" 
+                                       VerticalAlignment="Center" 
+                                       Margin="0,0,10,0"/>
+                            
+                            <Slider Grid.Row="1" Grid.Column="1" 
+                                    x:Name="RmsLevelSlider" 
+                                    Minimum="-60" 
+                                    Maximum="6" 
+                                    Value="-30" 
+                                    TickFrequency="6" 
+                                    IsSnapToTickEnabled="False"
+                                    ValueChanged="RmsLevelSlider_ValueChanged"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Audio Faders Section -->
+            <Border Grid.Column="1" 
+                    Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="1" 
+                    CornerRadius="5" 
+                    Margin="10,0,0,0"
+                    Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" 
+                               Text="Audio Faders" 
+                               FontSize="18" 
+                               Foreground="White" 
+                               Margin="0,0,0,20"/>
+                    
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <!-- Vertical Faders -->
+                        <StackPanel Orientation="Horizontal" Margin="0,0,40,0">
+                            <controls:AudioFader x:Name="VerticalFader1" 
+                                               Width="50" 
+                                               Height="200" 
+                                               Margin="0,0,20,0" 
+                                               Value="-20"
+                                               Label="Channel 1"
+                                               ShowTickLabels="True"/>
+                            
+                            <controls:AudioFader x:Name="VerticalFader2" 
+                                               Width="50" 
+                                               Height="200" 
+                                               Margin="0,0,20,0" 
+                                               Value="-10"
+                                               Label="Channel 2"/>
+                            
+                            <controls:AudioFader x:Name="VerticalFader3" 
+                                               Width="50" 
+                                               Height="200" 
+                                               Value="0"
+                                               Label="Channel 3"/>
+                        </StackPanel>
+                        
+                        <!-- Horizontal Faders -->
+                        <StackPanel Orientation="Vertical">
+                            <controls:AudioFader x:Name="HorizontalFader1" 
+                                               Width="200" 
+                                               Height="50" 
+                                               Margin="0,0,0,20" 
+                                               Value="-20"
+                                               Orientation="Horizontal"
+                                               Label="Bus 1"
+                                               ShowTickLabels="True"/>
+                            
+                            <controls:AudioFader x:Name="HorizontalFader2" 
+                                               Width="200" 
+                                               Height="50" 
+                                               Margin="0,0,0,20" 
+                                               Value="-10"
+                                               Orientation="Horizontal"
+                                               Label="Bus 2"/>
+                            
+                            <controls:AudioFader x:Name="HorizontalFader3" 
+                                               Width="200" 
+                                               Height="50" 
+                                               Value="0"
+                                               Orientation="Horizontal"
+                                               Label="Master"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="2" Margin="0,20,0,0">
+                        <TextBlock Text="Link Faders" 
+                                   FontSize="14" 
+                                   Foreground="White" 
+                                   Margin="0,0,0,10"/>
+                        
+                        <CheckBox x:Name="LinkFadersCheckBox" 
+                                  Content="Link All Faders" 
+                                  Foreground="White" 
+                                  IsChecked="False"
+                                  Checked="LinkFadersCheckBox_Checked"
+                                  Unchecked="LinkFadersCheckBox_Unchecked"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,411 @@
+<UserControl x:Class="MaiksMixer.UI.Views.PresetManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Views"
+             xmlns:models="clr-namespace:MaiksMixer.Core.Models;assembly=MaiksMixer.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#1E1E1E">
+    <UserControl.Resources>
+        <!-- Styles -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" 
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3E3E42"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0078D7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="PresetCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        
+        <!-- Category to Color Converter -->
+        <local:CategoryToBrushConverter x:Key="CategoryToBrushConverter"/>
+    </UserControl.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0" 
+                   Text="Preset Management" 
+                   Style="{StaticResource HeaderTextStyle}"/>
+        
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    Margin="0,0,0,20">
+            <Button Content="Create New Preset" 
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding CreatePresetCommand}"/>
+            
+            <Button Content="Import Preset" 
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding ImportPresetCommand}"/>
+            
+            <Button Content="Export Selected" 
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding ExportPresetCommand}"/>
+            
+            <Button Content="Refresh" 
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding RefreshPresetsCommand}"/>
+        </StackPanel>
+        
+        <!-- Main Content -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Categories -->
+            <Border Grid.Column="0" 
+                    Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="1" 
+                    CornerRadius="5" 
+                    Padding="15" 
+                    Margin="0,0,10,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" 
+                               Text="Categories" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <ListView Grid.Row="1" 
+                              ItemsSource="{Binding Categories}" 
+                              SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" 
+                              Background="Transparent" 
+                              BorderThickness="0" 
+                              Margin="0,5,0,10">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="12" 
+                                            Height="12" 
+                                            Background="{Binding Converter={StaticResource CategoryToBrushConverter}}" 
+                                            CornerRadius="2" 
+                                            Margin="0,0,8,0"/>
+                                    
+                                    <TextBlock Text="{Binding}" 
+                                               Foreground="White"/>
+                                    
+                                    <TextBlock Text="{Binding Count, StringFormat=({0})}" 
+                                               Foreground="LightGray" 
+                                               Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    
+                    <StackPanel Grid.Row="2" 
+                                Orientation="Horizontal">
+                        <Button Content="Add" 
+                                Padding="10,3" 
+                                Margin="0,0,5,0"
+                                Command="{Binding AddCategoryCommand}"/>
+                        
+                        <Button Content="Rename" 
+                                Padding="10,3" 
+                                Margin="0,0,5,0"
+                                Command="{Binding RenameCategoryCommand}"/>
+                        
+                        <Button Content="Delete" 
+                                Padding="10,3"
+                                Command="{Binding DeleteCategoryCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Presets -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Search Bar -->
+                <Grid Grid.Row="0" Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBox Grid.Column="0" 
+                             Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="5,3" 
+                             Margin="0,0,10,0"/>
+                    
+                    <Button Grid.Column="1" 
+                            Content="Search" 
+                            Padding="10,3"
+                            Command="{Binding SearchCommand}"/>
+                </Grid>
+                
+                <!-- Preset List -->
+                <ScrollViewer Grid.Row="1" 
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding FilteredPresets}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:PresetInfo}">
+                                <Border Style="{StaticResource PresetCardStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <!-- Header -->
+                                        <StackPanel Grid.Row="0" Grid.Column="0" 
+                                                    Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" 
+                                                       FontSize="16" 
+                                                       FontWeight="SemiBold" 
+                                                       Foreground="White"/>
+                                            
+                                            <Border Background="{Binding Category, Converter={StaticResource CategoryToBrushConverter}}" 
+                                                    CornerRadius="3" 
+                                                    Padding="5,1" 
+                                                    Margin="10,0,0,0">
+                                                <TextBlock Text="{Binding Category}" 
+                                                           Foreground="White" 
+                                                           FontSize="12"/>
+                                            </Border>
+                                        </StackPanel>
+                                        
+                                        <!-- Actions -->
+                                        <StackPanel Grid.Row="0" Grid.Column="1" 
+                                                    Orientation="Horizontal">
+                                            <Button Content="Load" 
+                                                    Padding="10,3" 
+                                                    Margin="0,0,5,0"
+                                                    Command="{Binding DataContext.LoadPresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                            
+                                            <Button Content="Edit" 
+                                                    Padding="10,3" 
+                                                    Margin="0,0,5,0"
+                                                    Command="{Binding DataContext.EditPresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                            
+                                            <Button Content="Delete" 
+                                                    Padding="10,3"
+                                                    Command="{Binding DataContext.DeletePresetCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
+                                        
+                                        <!-- Description -->
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                   Text="{Binding Description}" 
+                                                   Foreground="LightGray" 
+                                                   TextWrapping="Wrap" 
+                                                   Margin="0,10,0,0"/>
+                                        
+                                        <!-- Dates -->
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                    Orientation="Horizontal" 
+                                                    Margin="0,10,0,0">
+                                            <TextBlock Text="Created:" 
+                                                       Foreground="LightGray"/>
+                                            
+                                            <TextBlock Text="{Binding CreatedAt, StringFormat={}{0:g}}" 
+                                                       Foreground="LightGray" 
+                                                       Margin="5,0,15,0"/>
+                                            
+                                            <TextBlock Text="Modified:" 
+                                                       Foreground="LightGray"/>
+                                            
+                                            <TextBlock Text="{Binding ModifiedAt, StringFormat={}{0:g}}" 
+                                                       Foreground="LightGray" 
+                                                       Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                        
+                                        <!-- Favorite -->
+                                        <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                  Content="Favorite" 
+                                                  IsChecked="{Binding IsFavorite, Mode=TwoWay}" 
+                                                  Foreground="White" 
+                                                  Margin="0,10,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                
+                <!-- No Presets Message -->
+                <TextBlock Grid.Row="1" 
+                           Text="No presets found. Create a new preset or import an existing one." 
+                           Foreground="LightGray" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" 
+                           TextWrapping="Wrap" 
+                           TextAlignment="Center" 
+                           Visibility="{Binding HasNoPresets, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </Grid>
+        </Grid>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="3" 
+                Background="#2D2D30" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="1" 
+                Margin="0,20,0,0" 
+                Padding="10,5">
+            <TextBlock Text="{Binding StatusMessage}" 
+                       Foreground="LightGray"/>
+        </Border>
+        
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4" 
+                Background="#80000000" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" 
+                        HorizontalAlignment="Center">
+                <TextBlock Text="Loading..." 
+                           Foreground="White" 
+                           FontSize="18" 
+                           HorizontalAlignment="Center"/>
+                
+                <ProgressBar IsIndeterminate="True" 
+                             Width="200" 
+                             Height="10" 
+                             Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Preset Editor Dialog -->
+        <Border Grid.Row="0" Grid.RowSpan="4" 
+                Background="#80000000" 
+                Visibility="{Binding IsEditingPreset, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="1" 
+                    CornerRadius="5" 
+                    Width="400" 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center" 
+                    Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" 
+                               Text="{Binding PresetEditorTitle}" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="White" 
+                               Margin="0,0,0,15"/>
+                    
+                    <TextBlock Grid.Row="1" 
+                               Text="Preset Name:" 
+                               Foreground="White" 
+                               Margin="0,0,0,5"/>
+                    
+                    <TextBox Grid.Row="2" 
+                             Text="{Binding EditPresetName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="5,3" 
+                             Margin="0,0,0,10"/>
+                    
+                    <TextBlock Grid.Row="3" 
+                               Text="Description:" 
+                               Foreground="White" 
+                               Margin="0,0,0,5"/>
+                    
+                    <TextBox Grid.Row="4" 
+                             Text="{Binding EditPresetDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="5,3" 
+                             Margin="0,0,0,15" 
+                             TextWrapping="Wrap" 
+                             AcceptsReturn="True" 
+                             Height="80" 
+                             VerticalScrollBarVisibility="Auto"/>
+                    
+                    <StackPanel Grid.Row="5" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right">
+                        <Button Content="Cancel" 
+                                Style="{StaticResource ButtonStyle}" 
+                                Command="{Binding CancelEditPresetCommand}"/>
+                        
+                        <Button Content="Save" 
+                                Style="{StaticResource ButtonStyle}" 
+                                Command="{Binding SaveEditPresetCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

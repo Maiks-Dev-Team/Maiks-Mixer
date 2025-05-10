@@ -1,0 +1,443 @@
+<UserControl x:Class="MaiksMixer.UI.Views.RoutingMatrixView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Views"
+             xmlns:controls="clr-namespace:MaiksMixer.UI.Controls"
+             xmlns:models="clr-namespace:MaiksMixer.Core.Models;assembly=MaiksMixer.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#1E1E1E">
+    <UserControl.Resources>
+        <!-- Styles -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" 
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3E3E42"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0078D7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Connection Cell Style -->
+        <Style x:Key="ConnectionCellStyle" TargetType="Border">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                    <Setter Property="Background" Value="#0078D7"/>
+                </DataTrigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E42"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- Device Label Style -->
+        <Style x:Key="DeviceLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5,0"/>
+        </Style>
+        
+        <!-- Port Label Style -->
+        <Style x:Key="PortLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="MaxWidth" Value="150"/>
+        </Style>
+        
+        <!-- Connection Cell Template -->
+        <DataTemplate x:Key="ConnectionCellTemplate">
+            <Border Style="{StaticResource ConnectionCellStyle}">
+                <Border.ToolTip>
+                    <StackPanel>
+                        <TextBlock Text="{Binding SourceName}" FontWeight="Bold"/>
+                        <TextBlock Text=" → "/>
+                        <TextBlock Text="{Binding DestinationName}" FontWeight="Bold"/>
+                        <Separator Margin="0,2"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Volume: "/>
+                            <TextBlock Text="{Binding Volume, StringFormat={}{0:P0}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Status: "/>
+                            <TextBlock Text="{Binding Status}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border.ToolTip>
+                <Grid>
+                    <Ellipse Width="12" Height="12" Fill="White" Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" 
+                       Text="Audio Routing Matrix" 
+                       Style="{StaticResource HeaderTextStyle}"/>
+            
+            <StackPanel Grid.Column="1" 
+                        Orientation="Horizontal">
+                <Button Content="Refresh" 
+                        Style="{StaticResource ButtonStyle}" 
+                        Command="{Binding RefreshCommand}"/>
+                
+                <Button Content="Clear All" 
+                        Style="{StaticResource ButtonStyle}" 
+                        Command="{Binding ClearAllCommand}"/>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Filters -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Grid.Column="0" 
+                       Text="Source Filter:" 
+                       Foreground="White" 
+                       VerticalAlignment="Center" 
+                       Margin="0,0,10,0"/>
+            
+            <ComboBox Grid.Column="1" 
+                      ItemsSource="{Binding SourceFilters}" 
+                      SelectedItem="{Binding SelectedSourceFilter, Mode=TwoWay}" 
+                      Margin="0,0,20,0"/>
+            
+            <TextBlock Grid.Column="2" 
+                       Text="Destination Filter:" 
+                       Foreground="White" 
+                       VerticalAlignment="Center" 
+                       Margin="0,0,10,0"/>
+            
+            <ComboBox Grid.Column="3" 
+                      ItemsSource="{Binding DestinationFilters}" 
+                      SelectedItem="{Binding SelectedDestinationFilter, Mode=TwoWay}"/>
+        </Grid>
+        
+        <!-- Routing Matrix -->
+        <Border Grid.Row="2" 
+                Background="#2D2D30" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="1">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+                          VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Top-Left Corner -->
+                    <Border Grid.Row="0" Grid.Column="0" 
+                            Background="#252526" 
+                            BorderBrush="#3F3F46" 
+                            BorderThickness="0,0,1,1" 
+                            Width="200" 
+                            Height="30">
+                        <TextBlock Text="Sources \ Destinations" 
+                                   Foreground="White" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center" 
+                                   FontStyle="Italic"/>
+                    </Border>
+                    
+                    <!-- Destination Headers -->
+                    <ItemsControl Grid.Row="0" Grid.Column="1" 
+                                  ItemsSource="{Binding DestinationPorts}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#252526" 
+                                        BorderBrush="#3F3F46" 
+                                        BorderThickness="0,0,1,1" 
+                                        Width="30" 
+                                        Height="30">
+                                    <TextBlock Text="{Binding Channel}" 
+                                               Foreground="White" 
+                                               HorizontalAlignment="Center" 
+                                               VerticalAlignment="Center" 
+                                               ToolTip="{Binding Name}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <!-- Source Headers -->
+                    <ItemsControl Grid.Row="1" Grid.Column="0" 
+                                  ItemsSource="{Binding SourcePorts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#252526" 
+                                        BorderBrush="#3F3F46" 
+                                        BorderThickness="0,0,1,1" 
+                                        Height="30" 
+                                        Width="200">
+                                    <TextBlock Text="{Binding Name}" 
+                                               Style="{StaticResource PortLabelStyle}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <!-- Connection Matrix -->
+                    <ItemsControl Grid.Row="1" Grid.Column="1" 
+                                  ItemsSource="{Binding ConnectionMatrix}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ItemsControl ItemsSource="{Binding}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <ContentControl Content="{Binding}" 
+                                                            ContentTemplate="{StaticResource ConnectionCellTemplate}">
+                                                <ContentControl.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick" 
+                                                                  Command="{Binding DataContext.ToggleConnectionCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" 
+                                                                  CommandParameter="{Binding}"/>
+                                                    <MouseBinding MouseAction="RightClick" 
+                                                                  Command="{Binding DataContext.EditConnectionCommand, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" 
+                                                                  CommandParameter="{Binding}"/>
+                                                </ContentControl.InputBindings>
+                                            </ContentControl>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="3" 
+                Background="#2D2D30" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="1" 
+                Margin="0,10,0,0" 
+                Padding="10,5">
+            <TextBlock Text="{Binding StatusMessage}" 
+                       Foreground="LightGray"/>
+        </Border>
+        
+        <!-- Connection Editor Popup -->
+        <Popup Grid.Row="0" Grid.RowSpan="4" 
+               IsOpen="{Binding IsEditingConnection}" 
+               PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}" 
+               Placement="Center" 
+               StaysOpen="False" 
+               AllowsTransparency="True">
+            <Border Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="1" 
+                    Width="400" 
+                    Padding="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Header -->
+                    <TextBlock Grid.Row="0" 
+                               Text="Edit Connection" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="White" 
+                               Margin="0,0,0,15"/>
+                    
+                    <!-- Connection Details -->
+                    <Grid Grid.Row="1" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                   Text="Source:" 
+                                   Foreground="White" 
+                                   Margin="0,0,10,5"/>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="1" 
+                                   Text="{Binding EditingConnection.SourceName}" 
+                                   Foreground="White" 
+                                   FontWeight="SemiBold"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                                   Text="Destination:" 
+                                   Foreground="White" 
+                                   Margin="0,0,10,0"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="1" 
+                                   Text="{Binding EditingConnection.DestinationName}" 
+                                   Foreground="White" 
+                                   FontWeight="SemiBold"/>
+                    </Grid>
+                    
+                    <!-- Volume Control -->
+                    <Grid Grid.Row="2" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="Volume:" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,0,10,0"/>
+                        
+                        <Slider Grid.Column="1" 
+                                Minimum="0" 
+                                Maximum="1" 
+                                Value="{Binding EditingConnection.Volume, Mode=TwoWay}" 
+                                TickFrequency="0.1" 
+                                TickPlacement="BottomRight" 
+                                IsSnapToTickEnabled="True"/>
+                        
+                        <TextBlock Grid.Column="2" 
+                                   Text="{Binding EditingConnection.Volume, StringFormat={}{0:P0}}" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center" 
+                                   Margin="10,0,0,0" 
+                                   Width="40"/>
+                    </Grid>
+                    
+                    <!-- Connection Enabled -->
+                    <CheckBox Grid.Row="3" 
+                              Content="Connection Enabled" 
+                              IsChecked="{Binding EditingConnection.IsConnected, Mode=TwoWay}" 
+                              Foreground="White" 
+                              Margin="0,0,0,15"/>
+                    
+                    <!-- Buttons -->
+                    <StackPanel Grid.Row="4" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right">
+                        <Button Content="Cancel" 
+                                Style="{StaticResource ButtonStyle}" 
+                                Command="{Binding CancelEditConnectionCommand}"/>
+                        
+                        <Button Content="Apply" 
+                                Style="{StaticResource ButtonStyle}" 
+                                Command="{Binding ApplyConnectionChangesCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Popup>
+        
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="4" 
+                Background="#80000000" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" 
+                        HorizontalAlignment="Center">
+                <TextBlock Text="Loading..." 
+                           Foreground="White" 
+                           FontSize="18" 
+                           HorizontalAlignment="Center"/>
+                
+                <ProgressBar IsIndeterminate="True" 
+                             Width="200" 
+                             Height="10" 
+                             Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

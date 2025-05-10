@@ -1,0 +1,407 @@
+<UserControl x:Class="MaiksMixer.UI.Views.DeviceManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Views"
+             xmlns:controls="clr-namespace:MaiksMixer.UI.Controls"
+             xmlns:models="clr-namespace:MaiksMixer.Core.Communication.Models;assembly=MaiksMixer.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#1E1E1E">
+    <UserControl.Resources>
+        <!-- Styles -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+        
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        
+        <Style x:Key="DeviceNameStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        
+        <Style x:Key="DeviceInfoStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="LightGray"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" 
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3E3E42"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0078D7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="DeviceCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        
+        <!-- Status Indicator Converter -->
+        <local:DeviceStatusToBrushConverter x:Key="DeviceStatusToBrushConverter"/>
+        
+        <!-- Device Type Converter -->
+        <local:DeviceTypeToStringConverter x:Key="DeviceTypeToStringConverter"/>
+    </UserControl.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <TextBlock Grid.Row="0" 
+                   Text="Device Management" 
+                   Style="{StaticResource HeaderTextStyle}"/>
+        
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    Margin="0,0,0,20">
+            <Button Content="Refresh Devices" 
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding RefreshDevicesCommand}"/>
+            
+            <Button Content="Add Virtual Device" 
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding ShowCreateDeviceCommand}"/>
+            
+            <Button Content="Remove Device" 
+                    Style="{StaticResource ButtonStyle}"
+                    Command="{Binding RemoveVirtualDeviceCommand}"/>
+            
+            <controls:ConnectionStatusIndicator x:Name="ConnectionStatus" 
+                                              Margin="10,0,0,0" 
+                                              HorizontalAlignment="Right"/>
+        </StackPanel>
+        
+        <!-- Main Content -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Physical Devices -->
+            <ScrollViewer Grid.Column="0" 
+                          VerticalScrollBarVisibility="Auto" 
+                          Margin="0,0,10,0">
+                <StackPanel>
+                    <TextBlock Text="Physical Devices" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <ItemsControl ItemsSource="{Binding PhysicalDevices}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:AudioDevice}">
+                                <Border Style="{StaticResource DeviceCardStyle}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Device Name -->
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding Name}" 
+                                                   Style="{StaticResource DeviceNameStyle}"/>
+                                        
+                                        <!-- Status Indicator -->
+                                        <Ellipse Grid.Row="0" Grid.Column="1" 
+                                                 Width="12" 
+                                                 Height="12" 
+                                                 Fill="{Binding Status, Converter={StaticResource DeviceStatusToBrushConverter}}" 
+                                                 VerticalAlignment="Center" 
+                                                 HorizontalAlignment="Right" 
+                                                 Margin="0,0,5,0"/>
+                                        
+                                        <!-- Device Type -->
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                   Text="{Binding DeviceType, Converter={StaticResource DeviceTypeToStringConverter}}" 
+                                                   Style="{StaticResource DeviceInfoStyle}"/>
+                                        
+                                        <!-- Device Details -->
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                    Margin="0,10,0,0">
+                                            <TextBlock Text="{Binding DriverType, StringFormat=Driver: {0}}" 
+                                                       Style="{StaticResource DeviceInfoStyle}"/>
+                                            
+                                            <TextBlock Style="{StaticResource DeviceInfoStyle}">
+                                                <Run Text="Channels: "/>
+                                                <Run Text="{Binding InputChannels, Mode=OneWay}"/>
+                                                <Run Text=" in, "/>
+                                                <Run Text="{Binding OutputChannels, Mode=OneWay}"/>
+                                                <Run Text=" out"/>
+                                            </TextBlock>
+                                            
+                                            <TextBlock Text="{Binding SampleRate, StringFormat=Sample Rate: {0} Hz}" 
+                                                       Style="{StaticResource DeviceInfoStyle}"/>
+                                            
+                                            <TextBlock Text="{Binding BufferSize, StringFormat=Buffer Size: {0} frames}" 
+                                                       Style="{StaticResource DeviceInfoStyle}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- Virtual Devices -->
+            <ScrollViewer Grid.Column="1" 
+                          VerticalScrollBarVisibility="Auto" 
+                          Margin="10,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="Virtual Devices" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <ItemsControl ItemsSource="{Binding VirtualDevices}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:AudioDevice}">
+                                <Border Style="{StaticResource DeviceCardStyle}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Device Name -->
+                                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                                   Text="{Binding Name}" 
+                                                   Style="{StaticResource DeviceNameStyle}"/>
+                                        
+                                        <!-- Status Indicator -->
+                                        <Ellipse Grid.Row="0" Grid.Column="1" 
+                                                 Width="12" 
+                                                 Height="12" 
+                                                 Fill="{Binding Status, Converter={StaticResource DeviceStatusToBrushConverter}}" 
+                                                 VerticalAlignment="Center" 
+                                                 HorizontalAlignment="Right" 
+                                                 Margin="0,0,5,0"/>
+                                        
+                                        <!-- Device Type -->
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                   Text="{Binding DeviceType, Converter={StaticResource DeviceTypeToStringConverter}}" 
+                                                   Style="{StaticResource DeviceInfoStyle}"/>
+                                        
+                                        <!-- Device Details -->
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" 
+                                                    Margin="0,10,0,0">
+                                            <TextBlock Style="{StaticResource DeviceInfoStyle}">
+                                                <Run Text="Channels: "/>
+                                                <Run Text="{Binding InputChannels, Mode=OneWay}"/>
+                                                <Run Text=" in, "/>
+                                                <Run Text="{Binding OutputChannels, Mode=OneWay}"/>
+                                                <Run Text=" out"/>
+                                            </TextBlock>
+                                            
+                                            <TextBlock Text="{Binding SampleRate, StringFormat=Sample Rate: {0} Hz}" 
+                                                       Style="{StaticResource DeviceInfoStyle}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+            
+            <!-- Create Device Panel (Popup) -->
+            <Border Grid.Column="0" Grid.ColumnSpan="2" 
+                    Background="#2D2D30" 
+                    BorderBrush="#3F3F46" 
+                    BorderThickness="1" 
+                    CornerRadius="5" 
+                    Padding="20" 
+                    Visibility="{Binding IsCreatingDevice, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" 
+                               Text="Create Virtual Device" 
+                               Style="{StaticResource SectionHeaderStyle}" 
+                               Margin="0,0,0,20"/>
+                    
+                    <!-- Device Name -->
+                    <Grid Grid.Row="1" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="Device Name:" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"/>
+                        
+                        <TextBox Grid.Column="1" 
+                                 Text="{Binding NewDeviceName, UpdateSourceTrigger=PropertyChanged}" 
+                                 Padding="5,3"/>
+                    </Grid>
+                    
+                    <!-- Input Channels -->
+                    <Grid Grid.Row="2" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="Input Channels:" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBox Text="{Binding NewDeviceInputChannels}" 
+                                     Width="50" 
+                                     Padding="5,3"/>
+                            
+                            <Slider Value="{Binding NewDeviceInputChannels}" 
+                                    Minimum="0" 
+                                    Maximum="16" 
+                                    Width="200" 
+                                    Margin="10,0,0,0" 
+                                    TickFrequency="1" 
+                                    IsSnapToTickEnabled="True" 
+                                    TickPlacement="BottomRight"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Output Channels -->
+                    <Grid Grid.Row="3" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" 
+                                   Text="Output Channels:" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <TextBox Text="{Binding NewDeviceOutputChannels}" 
+                                     Width="50" 
+                                     Padding="5,3"/>
+                            
+                            <Slider Value="{Binding NewDeviceOutputChannels}" 
+                                    Minimum="0" 
+                                    Maximum="16" 
+                                    Width="200" 
+                                    Margin="10,0,0,0" 
+                                    TickFrequency="1" 
+                                    IsSnapToTickEnabled="True" 
+                                    TickPlacement="BottomRight"/>
+                        </StackPanel>
+                    </Grid>
+                    
+                    <!-- Buttons -->
+                    <StackPanel Grid.Row="4" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right">
+                        <Button Content="Cancel" 
+                                Style="{StaticResource ButtonStyle}" 
+                                Command="{Binding CancelCreateDeviceCommand}"/>
+                        
+                        <Button Content="Create Device" 
+                                Style="{StaticResource ButtonStyle}" 
+                                Command="{Binding CreateVirtualDeviceCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Loading Overlay -->
+            <Border Grid.Column="0" Grid.ColumnSpan="2" 
+                    Background="#80000000" 
+                    Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel VerticalAlignment="Center" 
+                            HorizontalAlignment="Center">
+                    <TextBlock Text="Loading..." 
+                               Foreground="White" 
+                               FontSize="18" 
+                               HorizontalAlignment="Center"/>
+                    
+                    <ProgressBar IsIndeterminate="True" 
+                                 Width="200" 
+                                 Height="10" 
+                                 Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="3" 
+                Background="#2D2D30" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="1" 
+                Margin="0,10,0,0" 
+                Padding="10,5">
+            <TextBlock Text="{Binding StatusMessage}" 
+                       Foreground="LightGray"/>
+        </Border>
+    </Grid>
+</UserControl>

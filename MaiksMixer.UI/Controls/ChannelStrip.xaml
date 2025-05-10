@@ -1,0 +1,168 @@
+<UserControl x:Class="MaiksMixer.UI.Controls.ChannelStrip"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="100">
+    <UserControl.Resources>
+        <!-- Button Styles -->
+        <Style x:Key="ChannelButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Background" 
+                                    Background="#333333" 
+                                    BorderBrush="#666666" 
+                                    BorderThickness="1" 
+                                    CornerRadius="3"/>
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" 
+                                              Margin="5"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Background" Property="Background" Value="#444444"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Background" Property="Background" Value="#555555"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Background" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Tag}" Value="Active">
+                                <Setter TargetName="Background" Property="Background" Value="#0078D7"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Label Style -->
+        <Style x:Key="ChannelLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="Margin" Value="0,5"/>
+        </Style>
+        
+        <!-- Value Display Style -->
+        <Style x:Key="ValueDisplayStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="LightGray"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Border Background="#2D2D30" 
+            BorderBrush="#3F3F46" 
+            BorderThickness="1" 
+            CornerRadius="5">
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Channel Label -->
+                <RowDefinition Height="Auto"/> <!-- Meter -->
+                <RowDefinition Height="Auto"/> <!-- Fader -->
+                <RowDefinition Height="Auto"/> <!-- Volume Display -->
+                <RowDefinition Height="Auto"/> <!-- Pan Control -->
+                <RowDefinition Height="Auto"/> <!-- Pan Display -->
+                <RowDefinition Height="Auto"/> <!-- Mute/Solo Buttons -->
+                <RowDefinition Height="Auto"/> <!-- Additional Controls -->
+            </Grid.RowDefinitions>
+            
+            <!-- Channel Label -->
+            <TextBlock Grid.Row="0" 
+                       x:Name="ChannelLabel" 
+                       Text="Channel 1" 
+                       Style="{StaticResource ChannelLabelStyle}"/>
+            
+            <!-- Meter -->
+            <local:AudioLevelMeter Grid.Row="1" 
+                                  x:Name="LevelMeter" 
+                                  Height="150" 
+                                  Margin="5,5" 
+                                  PeakLevel="-20" 
+                                  RmsLevel="-30"
+                                  TickInterval="12"
+                                  ShowTickLabels="True"/>
+            
+            <!-- Fader -->
+            <local:AudioFader Grid.Row="2" 
+                             x:Name="VolumeFader" 
+                             Height="200" 
+                             Margin="5,5" 
+                             Value="0"
+                             ValueChanged="VolumeFader_ValueChanged"/>
+            
+            <!-- Volume Display -->
+            <TextBlock Grid.Row="3" 
+                       x:Name="VolumeDisplay" 
+                       Text="0.0 dB" 
+                       Style="{StaticResource ValueDisplayStyle}"/>
+            
+            <!-- Pan Control -->
+            <Slider Grid.Row="4" 
+                    x:Name="PanSlider" 
+                    Minimum="-1" 
+                    Maximum="1" 
+                    Value="0" 
+                    Margin="5,10,5,2"
+                    TickFrequency="0.5"
+                    TickPlacement="BottomRight"
+                    IsSnapToTickEnabled="False"
+                    ValueChanged="PanSlider_ValueChanged"/>
+            
+            <!-- Pan Display -->
+            <TextBlock Grid.Row="5" 
+                       x:Name="PanDisplay" 
+                       Text="C" 
+                       Style="{StaticResource ValueDisplayStyle}"/>
+            
+            <!-- Mute/Solo Buttons -->
+            <StackPanel Grid.Row="6" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,10,0,5">
+                <Button x:Name="MuteButton" 
+                        Content="M" 
+                        Style="{StaticResource ChannelButtonStyle}"
+                        ToolTip="Mute"
+                        Click="MuteButton_Click"/>
+                
+                <Button x:Name="SoloButton" 
+                        Content="S" 
+                        Style="{StaticResource ChannelButtonStyle}"
+                        ToolTip="Solo"
+                        Click="SoloButton_Click"/>
+            </StackPanel>
+            
+            <!-- Additional Controls -->
+            <StackPanel Grid.Row="7" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,5,0,0">
+                <Button x:Name="SettingsButton" 
+                        Content="⚙" 
+                        Style="{StaticResource ChannelButtonStyle}"
+                        ToolTip="Channel Settings"
+                        Click="SettingsButton_Click"/>
+                
+                <Button x:Name="RoutingButton" 
+                        Content="R" 
+                        Style="{StaticResource ChannelButtonStyle}"
+                        ToolTip="Routing"
+                        Click="RoutingButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

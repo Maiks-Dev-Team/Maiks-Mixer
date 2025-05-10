@@ -1,0 +1,522 @@
+<UserControl x:Class="MaiksMixer.UI.Views.DevicePropertiesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Views"
+             xmlns:controls="clr-namespace:MaiksMixer.UI.Controls"
+             xmlns:models="clr-namespace:MaiksMixer.Core.Models;assembly=MaiksMixer.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="500"
+             Background="#1E1E1E">
+    <UserControl.Resources>
+        <!-- Styles -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+        
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,10,0,10"/>
+        </Style>
+        
+        <Style x:Key="PropertyLabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+        
+        <Style x:Key="PropertyGroupStyle" TargetType="Border">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+        
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center" 
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3E3E42"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0078D7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+            <!-- Header -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" 
+                           Text="{Binding DeviceTitle}" 
+                           Style="{StaticResource HeaderTextStyle}"/>
+                
+                <StackPanel Grid.Column="1" 
+                            Orientation="Horizontal">
+                    <Button Content="Apply Changes" 
+                            Style="{StaticResource ButtonStyle}" 
+                            Command="{Binding ApplyChangesCommand}"/>
+                    
+                    <Button Content="Reset" 
+                            Style="{StaticResource ButtonStyle}" 
+                            Command="{Binding ResetChangesCommand}"/>
+                </StackPanel>
+            </Grid>
+            
+            <!-- Device Status -->
+            <Border Style="{StaticResource PropertyGroupStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="Device Status" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <!-- Status -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                               Text="Status:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <StackPanel Grid.Row="1" Grid.Column="1" 
+                                Orientation="Horizontal">
+                        <Ellipse Width="12" 
+                                 Height="12" 
+                                 Fill="{Binding Device.Status, Converter={StaticResource DeviceStatusToBrushConverter}}" 
+                                 VerticalAlignment="Center" 
+                                 Margin="0,0,10,0"/>
+                        
+                        <TextBlock Text="{Binding Device.Status}" 
+                                   Foreground="White" 
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <!-- Last Updated -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" 
+                               Text="Last Updated:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="1" 
+                               Text="{Binding Device.LastUpdated, StringFormat={}{0:g}}" 
+                               Foreground="White" 
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Basic Properties -->
+            <Border Style="{StaticResource PropertyGroupStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="Basic Properties" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <!-- Name -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                               Text="Name:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <TextBox Grid.Row="1" Grid.Column="1" 
+                             Text="{Binding Device.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="5,3" 
+                             Margin="0,5"/>
+                    
+                    <!-- Device Type -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" 
+                               Text="Device Type:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="1" 
+                               Text="{Binding Device.DeviceType, Converter={StaticResource DeviceTypeToStringConverter}}" 
+                               Foreground="White" 
+                               VerticalAlignment="Center"/>
+                    
+                    <!-- Manufacturer -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" 
+                               Text="Manufacturer:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <TextBox Grid.Row="3" Grid.Column="1" 
+                             Text="{Binding Device.Manufacturer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="5,3" 
+                             Margin="0,5"
+                             IsEnabled="{Binding IsVirtualDevice}"/>
+                    
+                    <!-- Description -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" 
+                               Text="Description:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <TextBox Grid.Row="4" Grid.Column="1" 
+                             Text="{Binding Device.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             Padding="5,3" 
+                             Margin="0,5" 
+                             TextWrapping="Wrap" 
+                             AcceptsReturn="True" 
+                             Height="60" 
+                             VerticalScrollBarVisibility="Auto"/>
+                    
+                    <!-- Default Device -->
+                    <TextBlock Grid.Row="5" Grid.Column="0" 
+                               Text="Default Device:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <CheckBox Grid.Row="5" Grid.Column="1" 
+                              IsChecked="{Binding Device.IsDefault, Mode=TwoWay}" 
+                              Content="Set as default device" 
+                              Foreground="White" 
+                              VerticalAlignment="Center" 
+                              Margin="0,5"/>
+                </Grid>
+            </Border>
+            
+            <!-- Audio Configuration -->
+            <Border Style="{StaticResource PropertyGroupStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="Audio Configuration" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <!-- Input/Output -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                               Text="Device Mode:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <StackPanel Grid.Row="1" Grid.Column="1" 
+                                Orientation="Horizontal" 
+                                Margin="0,5">
+                        <CheckBox IsChecked="{Binding Device.IsInput, Mode=TwoWay}" 
+                                  Content="Input" 
+                                  Foreground="White" 
+                                  VerticalAlignment="Center" 
+                                  Margin="0,0,20,0"
+                                  IsEnabled="{Binding IsVirtualDevice}"/>
+                        
+                        <CheckBox IsChecked="{Binding Device.IsOutput, Mode=TwoWay}" 
+                                  Content="Output" 
+                                  Foreground="White" 
+                                  VerticalAlignment="Center"
+                                  IsEnabled="{Binding IsVirtualDevice}"/>
+                    </StackPanel>
+                    
+                    <!-- Input Channels -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" 
+                               Text="Input Channels:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <StackPanel Grid.Row="2" Grid.Column="1" 
+                                Orientation="Horizontal" 
+                                Margin="0,5">
+                        <TextBox Text="{Binding Device.InputChannels, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 Width="50" 
+                                 Padding="5,3"
+                                 IsEnabled="{Binding IsVirtualDevice}"/>
+                        
+                        <Slider Value="{Binding Device.InputChannels, Mode=TwoWay}" 
+                                Minimum="0" 
+                                Maximum="16" 
+                                Width="200" 
+                                Margin="10,0,0,0" 
+                                TickFrequency="1" 
+                                IsSnapToTickEnabled="True" 
+                                TickPlacement="BottomRight"
+                                IsEnabled="{Binding IsVirtualDevice}"/>
+                    </StackPanel>
+                    
+                    <!-- Output Channels -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" 
+                               Text="Output Channels:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <StackPanel Grid.Row="3" Grid.Column="1" 
+                                Orientation="Horizontal" 
+                                Margin="0,5">
+                        <TextBox Text="{Binding Device.OutputChannels, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                 Width="50" 
+                                 Padding="5,3"
+                                 IsEnabled="{Binding IsVirtualDevice}"/>
+                        
+                        <Slider Value="{Binding Device.OutputChannels, Mode=TwoWay}" 
+                                Minimum="0" 
+                                Maximum="16" 
+                                Width="200" 
+                                Margin="10,0,0,0" 
+                                TickFrequency="1" 
+                                IsSnapToTickEnabled="True" 
+                                TickPlacement="BottomRight"
+                                IsEnabled="{Binding IsVirtualDevice}"/>
+                    </StackPanel>
+                    
+                    <!-- Sample Rate -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" 
+                               Text="Sample Rate:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <ComboBox Grid.Row="4" Grid.Column="1" 
+                              ItemsSource="{Binding Device.SupportedSampleRates}" 
+                              SelectedItem="{Binding Device.CurrentSampleRate, Mode=TwoWay}" 
+                              Margin="0,5"
+                              IsEnabled="{Binding CanChangeSampleRate}"/>
+                    
+                    <!-- Buffer Size -->
+                    <TextBlock Grid.Row="5" Grid.Column="0" 
+                               Text="Buffer Size:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <ComboBox Grid.Row="5" Grid.Column="1" 
+                              ItemsSource="{Binding Device.SupportedBufferSizes}" 
+                              SelectedItem="{Binding Device.CurrentBufferSize, Mode=TwoWay}" 
+                              Margin="0,5"
+                              IsEnabled="{Binding CanChangeBufferSize}"/>
+                    
+                    <!-- Bit Depth -->
+                    <TextBlock Grid.Row="6" Grid.Column="0" 
+                               Text="Bit Depth:" 
+                               Style="{StaticResource PropertyLabelStyle}"/>
+                    
+                    <ComboBox Grid.Row="6" Grid.Column="1" 
+                              SelectedItem="{Binding Device.BitDepth, Mode=TwoWay}" 
+                              Margin="0,5"
+                              IsEnabled="{Binding IsVirtualDevice}">
+                        <ComboBoxItem Content="16"/>
+                        <ComboBoxItem Content="24"/>
+                        <ComboBoxItem Content="32"/>
+                    </ComboBox>
+                </Grid>
+            </Border>
+            
+            <!-- Port Configuration -->
+            <Border Style="{StaticResource PropertyGroupStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0"
+                               Text="Port Configuration" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <!-- Input Ports -->
+                    <Expander Grid.Row="1" 
+                              Header="Input Ports" 
+                              IsExpanded="True" 
+                              Margin="0,5,0,10">
+                        <ItemsControl ItemsSource="{Binding Device.InputPorts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:AudioPortInfo}">
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Name}" 
+                                                       Foreground="White" 
+                                                       FontWeight="SemiBold"/>
+                                            
+                                            <TextBlock Text="{Binding Description}" 
+                                                       Foreground="LightGray" 
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="1" 
+                                                    Orientation="Horizontal">
+                                            <Button Content="Edit" 
+                                                    Padding="8,3" 
+                                                    Margin="0,0,5,0"
+                                                    Command="{Binding DataContext.EditPortCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                            
+                                            <Button Content="Remove" 
+                                                    Padding="8,3"
+                                                    Command="{Binding DataContext.RemovePortCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding DataContext.IsVirtualDevice, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
+                    
+                    <!-- Output Ports -->
+                    <Expander Grid.Row="2" 
+                              Header="Output Ports" 
+                              IsExpanded="True" 
+                              Margin="0,0,0,5">
+                        <ItemsControl ItemsSource="{Binding Device.OutputPorts}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type models:AudioPortInfo}">
+                                    <Grid Margin="0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Name}" 
+                                                       Foreground="White" 
+                                                       FontWeight="SemiBold"/>
+                                            
+                                            <TextBlock Text="{Binding Description}" 
+                                                       Foreground="LightGray" 
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="1" 
+                                                    Orientation="Horizontal">
+                                            <Button Content="Edit" 
+                                                    Padding="8,3" 
+                                                    Margin="0,0,5,0"
+                                                    Command="{Binding DataContext.EditPortCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                            
+                                            <Button Content="Remove" 
+                                                    Padding="8,3"
+                                                    Command="{Binding DataContext.RemovePortCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding DataContext.IsVirtualDevice, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Expander>
+                </Grid>
+            </Border>
+            
+            <!-- Advanced Properties -->
+            <Border Style="{StaticResource PropertyGroupStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0"
+                               Text="Advanced Properties" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+                    
+                    <DataGrid Grid.Row="1" 
+                              ItemsSource="{Binding DeviceProperties}" 
+                              AutoGenerateColumns="False" 
+                              CanUserAddRows="True" 
+                              CanUserDeleteRows="True" 
+                              HeadersVisibility="Column" 
+                              GridLinesVisibility="Horizontal" 
+                              Background="Transparent" 
+                              BorderThickness="0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Property" 
+                                                Binding="{Binding Key}" 
+                                                Width="*"/>
+                            <DataGridTextColumn Header="Value" 
+                                                Binding="{Binding Value}" 
+                                                Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+            
+            <!-- Danger Zone -->
+            <Border Style="{StaticResource PropertyGroupStyle}" 
+                    BorderBrush="#FF4040">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0"
+                               Text="Danger Zone" 
+                               Style="{StaticResource SectionHeaderStyle}"
+                               Foreground="#FF4040"/>
+                    
+                    <StackPanel Grid.Row="1" 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right">
+                        <Button Content="Remove Device" 
+                                Style="{StaticResource ButtonStyle}" 
+                                Background="#3F1A1A" 
+                                BorderBrush="#FF4040"
+                                Command="{Binding RemoveDeviceCommand}"
+                                IsEnabled="{Binding IsVirtualDevice}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

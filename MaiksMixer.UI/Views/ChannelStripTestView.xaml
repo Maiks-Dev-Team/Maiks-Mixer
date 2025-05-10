@@ -1,0 +1,148 @@
+<UserControl x:Class="MaiksMixer.UI.Views.ChannelStripTestView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Views"
+             xmlns:controls="clr-namespace:MaiksMixer.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#1E1E1E">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Grid.Column="0" 
+                   Text="Channel Strip Test" 
+                   FontSize="24" 
+                   FontWeight="Bold" 
+                   Foreground="White" 
+                   Margin="0,0,0,20"/>
+        
+        <ScrollViewer Grid.Row="1" Grid.Column="0" 
+                      HorizontalScrollBarVisibility="Auto" 
+                      VerticalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Horizontal" x:Name="ChannelStripContainer">
+                <controls:ChannelStrip x:Name="Channel1" 
+                                      Margin="5,0" 
+                                      ChannelName="Input 1"
+                                      VolumeChanged="Channel_VolumeChanged"
+                                      PanChanged="Channel_PanChanged"
+                                      MuteChanged="Channel_MuteChanged"
+                                      SoloChanged="Channel_SoloChanged"
+                                      SettingsRequested="Channel_SettingsRequested"
+                                      RoutingRequested="Channel_RoutingRequested"/>
+                
+                <controls:ChannelStrip x:Name="Channel2" 
+                                      Margin="5,0" 
+                                      ChannelName="Input 2"
+                                      VolumeChanged="Channel_VolumeChanged"
+                                      PanChanged="Channel_PanChanged"
+                                      MuteChanged="Channel_MuteChanged"
+                                      SoloChanged="Channel_SoloChanged"
+                                      SettingsRequested="Channel_SettingsRequested"
+                                      RoutingRequested="Channel_RoutingRequested"/>
+                
+                <controls:ChannelStrip x:Name="Channel3" 
+                                      Margin="5,0" 
+                                      ChannelName="Input 3"
+                                      VolumeChanged="Channel_VolumeChanged"
+                                      PanChanged="Channel_PanChanged"
+                                      MuteChanged="Channel_MuteChanged"
+                                      SoloChanged="Channel_SoloChanged"
+                                      SettingsRequested="Channel_SettingsRequested"
+                                      RoutingRequested="Channel_RoutingRequested"/>
+                
+                <controls:ChannelStrip x:Name="Channel4" 
+                                      Margin="5,0" 
+                                      ChannelName="Output"
+                                      VolumeChanged="Channel_VolumeChanged"
+                                      PanChanged="Channel_PanChanged"
+                                      MuteChanged="Channel_MuteChanged"
+                                      SoloChanged="Channel_SoloChanged"
+                                      SettingsRequested="Channel_SettingsRequested"
+                                      RoutingRequested="Channel_RoutingRequested"/>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <Border Grid.Row="1" Grid.Column="1" 
+                Background="#2D2D30" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="1" 
+                CornerRadius="5" 
+                Margin="20,0,0,0"
+                Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" 
+                           Text="Test Controls" 
+                           FontSize="18" 
+                           FontWeight="SemiBold" 
+                           Foreground="White" 
+                           Margin="0,0,0,15"/>
+                
+                <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                    <TextBlock Text="Audio Level Simulation" 
+                               Foreground="White" 
+                               Margin="0,0,0,5"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <ToggleButton x:Name="SimulateAudioToggle" 
+                                     Content="Simulate Audio" 
+                                     Padding="10,5" 
+                                     Margin="0,0,10,0"
+                                     Checked="SimulateAudioToggle_Checked"
+                                     Unchecked="SimulateAudioToggle_Unchecked"/>
+                        
+                        <Slider Grid.Column="1" 
+                                x:Name="SimulationLevelSlider" 
+                                Minimum="-60" 
+                                Maximum="0" 
+                                Value="-20" 
+                                IsEnabled="{Binding ElementName=SimulateAudioToggle, Path=IsChecked}"
+                                ValueChanged="SimulationLevelSlider_ValueChanged"/>
+                    </Grid>
+                    
+                    <Button Content="Add Channel" 
+                            Padding="10,5" 
+                            Margin="0,10,0,0"
+                            Click="AddChannel_Click"/>
+                </StackPanel>
+                
+                <Border Grid.Row="2" 
+                        Background="#1E1E1E" 
+                        BorderBrush="#3F3F46" 
+                        BorderThickness="1" 
+                        Padding="10">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBox x:Name="EventLogTextBox" 
+                                 Background="Transparent" 
+                                 Foreground="LightGray" 
+                                 BorderThickness="0" 
+                                 IsReadOnly="True" 
+                                 TextWrapping="Wrap" 
+                                 AcceptsReturn="True"
+                                 FontFamily="Consolas"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

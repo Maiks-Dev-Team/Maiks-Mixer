@@ -1,0 +1,60 @@
+<UserControl x:Class="MaiksMixer.UI.Controls.ConnectionStatusIndicator"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MaiksMixer.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="30" d:DesignWidth="200">
+    <UserControl.Resources>
+        <!-- Status Colors -->
+        <SolidColorBrush x:Key="ConnectedBrush" Color="#00CC00"/>
+        <SolidColorBrush x:Key="DisconnectedBrush" Color="#CC0000"/>
+        <SolidColorBrush x:Key="ConnectingBrush" Color="#CCCC00"/>
+        <SolidColorBrush x:Key="ErrorBrush" Color="#CC6600"/>
+        
+        <!-- Animation -->
+        <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="StatusEllipse" 
+                             Storyboard.TargetProperty="Opacity"
+                             From="1.0" To="0.3" Duration="0:0:0.75" 
+                             AutoReverse="True"/>
+        </Storyboard>
+    </UserControl.Resources>
+    
+    <Border Background="#2D2D30" 
+            BorderBrush="#3F3F46" 
+            BorderThickness="1" 
+            CornerRadius="3">
+        <Grid Margin="5,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Status Indicator -->
+            <Ellipse x:Name="StatusEllipse" 
+                     Grid.Column="0" 
+                     Width="12" 
+                     Height="12" 
+                     Fill="{StaticResource DisconnectedBrush}" 
+                     Margin="0,0,8,0"/>
+            
+            <!-- Status Text -->
+            <TextBlock x:Name="StatusTextBlock" 
+                       Grid.Column="1" 
+                       Text="Disconnected" 
+                       Foreground="White" 
+                       VerticalAlignment="Center"/>
+            
+            <!-- Reconnect Button -->
+            <Button x:Name="ReconnectButton" 
+                    Grid.Column="2" 
+                    Content="Connect" 
+                    Padding="5,1" 
+                    Margin="8,0,0,0"
+                    Click="ReconnectButton_Click"/>
+        </Grid>
+    </Border>
+</UserControl>
