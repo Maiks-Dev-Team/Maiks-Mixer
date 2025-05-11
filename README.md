@@ -1,4 +1,6 @@
-# MaiksMixer
+# MaiksMixer [SHELVED]
+
+**NOTICE: This project has been shelved as of May 11, 2025.**
 
 A professional virtual audio mixer application with advanced routing capabilities and a modern user interface.
 
@@ -49,9 +51,17 @@ The UI communicates with the C++ audio engine using a combination of:
 
 See [CommunicationProtocol.md](./CommunicationProtocol.md) for detailed information about the message formats and commands.
 
-## Development Roadmap
+## Project Status
 
-See [checklist.md](./checklist.md) for the current development status and roadmap.
+This project has been officially shelved as of May 11, 2025. Development has been discontinued due to integration challenges between the C++ audio engine and C# UI components.
+
+Key issues encountered included:
+- CMake build failures due to special characters in paths
+- Missing C++ components and directories
+- Path formatting issues in CMakeLists.txt
+- Incompatibilities between the build processes
+
+The code remains available for reference purposes only.
 
 ## License
 
